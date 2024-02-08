@@ -13,8 +13,9 @@ dp = Dispatcher()
 
 @dp.message(CommandStart)
 async def start_command(message: types.Message):
-    await bot.send_message(chat_id="@for_dvmn", text='It is text')
-
+    caption = 'Изображение'
+    link_url = "https://images.unsplash.com/photo-1481349518771-20055b2a7b24?q=80&w=939&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    await bot.send_photo(chat_id="@for_dvmn", photo=link_url, caption=caption)
 
 async def main():
     await dp.start_polling(bot)
