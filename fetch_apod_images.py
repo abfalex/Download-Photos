@@ -23,7 +23,7 @@ def get_apod_images():
     args = parser.parse_args()
 
     parameters = {
-        'api_key': os.environ['NASA_API_KEY'],
+        'api_key': os.environ['NASA_API_TOKEN'],
         'count': args.count
     }
 

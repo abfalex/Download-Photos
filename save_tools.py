@@ -1,6 +1,6 @@
 import os
 import requests
-from urllib.parse import urlsplit, unquote, urlparse
+from urllib.parse import unquote, urlparse
 
 
 def save_image(url, folder_path, file_name, api_key=''):

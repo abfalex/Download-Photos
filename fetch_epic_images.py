@@ -23,7 +23,7 @@ def download_epic_pictures():
 
     args = parser.parse_args()
 
-    params = {'api_key': os.environ['NASA_API_KEY'], 'count': args.count}
+    params = {'api_key': os.environ['NASA_API_TOKEN'], 'count': args.count}
 
     url = 'https://api.nasa.gov/EPIC/api/natural/image'
 
