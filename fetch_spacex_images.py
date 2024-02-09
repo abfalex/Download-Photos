@@ -3,7 +3,23 @@ import argparse
 from save_tools import save_image
 
 
-def get_last_images():
+def get_last_images(args):
+    url = f'https://api.spacexdata.com/v5/launches/{args.id}'
+
+    response = requests.get(url)
+    response.raise_for_status()
+
+    flickr_original_links = response.json()['links']['flickr']['original']
+
+    for index, picture_url in enumerate(flickr_original_links, 1):
+        filename = 'spaceX_'
+        full_name = f"{filename}{index}.jpg"
+        folder = args.folder
+
+        save_image(picture_url, folder, full_name)
+
+
+def main():
     parser = argparse.ArgumentParser(description='Скачивание фотографий определенных запусков SpaceX.')
     parser.add_argument('--id',
                         help="Укажите ID запуска",
@@ -17,19 +33,8 @@ def get_last_images():
 
     args = parser.parse_args()
 
-    url = f'https://api.spacexdata.com/v5/launches/{args.id}'
-
-    response = requests.get(url)
-    response.raise_for_status()
-
-    links = response.json()['links']['flickr']['original']
-
-    filename = 'spaceX_'
-
-    for index, pictures in enumerate(links, 1):
-        full_name = f"{filename}{index}.jpg"
-        save_image(url, args.folder, full_name)
+    get_last_images(args)
 
 
 if __name__ == '__main__':
-    get_last_images()
+    main()

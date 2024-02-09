@@ -2,17 +2,41 @@ import argparse
 import os
 import requests
 from dotenv import load_dotenv
-from save_tools import extract_extension_from_link, download_and_save_file
-
-load_dotenv()
+from save_tools import extract_extension_from_link, save_image
 
 
-def get_apod_images():
-    parser = argparse.ArgumentParser(description='Скачка APOD-фотографий.')
+def get_apod_images(api_key, args):
+    parameters = {
+        'count': args.count,
+        'api_key': api_key
+    }
+
+    response = requests.get('https://api.nasa.gov/planetary/apod', params=parameters)
+    response.raise_for_status()
+
+    apod_data = response.json()
+
+    for index, picture_url in enumerate(apod_data, 1):
+        link_to_image = picture_url['url']
+        image_extension = extract_extension_from_link(link_to_image)[0]
+        folder_path = args.folder
+        file_name = f"apod_{index}{image_extension}"
+
+        save_image(link_to_image, folder_path, file_name, api_key)
+
+
+def main():
+    load_dotenv()
+    api_key = os.environ['NASA_API_TOKEN']
+
+    if not api_key:
+        raise ValueError("NASA_API_TOKEN не найден в переменной окружения.")
+
+    parser = argparse.ArgumentParser(description='Скачивание APOD-фотографий.')
 
     parser.add_argument('--folder',
                         help="Название папки, в которую будут сохраняться фотографии.",
-                        default='./image',
+                        default='image',
                         type=str)
 
     parser.add_argument('--count',
@@ -22,24 +46,8 @@ def get_apod_images():
 
     args = parser.parse_args()
 
-    parameters = {
-        'api_key': os.environ['NASA_API_TOKEN'],
-        'count': args.count
-    }
-
-    response = requests.get('https://api.nasa.gov/planetary/apod', params=parameters)
-    response.raise_for_status()
-
-    data = response.json()
-
-    for index, url in enumerate(data, 1):
-        link_to_image = url['url']
-        image_extension = extract_extension_from_link(link_to_image)[0]
-        folder_path = args.folder
-
-        download_and_save_file(link_to_image, folder_path, index, image_extension)
-        extract_extension_from_link(link_to_image)
+    get_apod_images(api_key, args)
 
 
 if __name__ == '__main__':
-    get_apod_images()
+    main()
