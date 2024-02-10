@@ -6,7 +6,11 @@ from urllib.parse import unquote, urlparse
 def save_image(url, folder_path, file_name, api_key=''):
     os.makedirs(folder_path, exist_ok=True)
 
-    response = requests.get(url, params=api_key)
+    params = {
+        'api_key': api_key
+    }
+
+    response = requests.get(url, params=params)
     response.raise_for_status()
 
     full_name = os.path.join(folder_path, file_name)

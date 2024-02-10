@@ -3,8 +3,8 @@ import argparse
 from save_tools import save_image
 
 
-def get_last_images(args):
-    url = f'https://api.spacexdata.com/v5/launches/{args.id}'
+def get_last_images(launch_id, folder):
+    url = f'https://api.spacexdata.com/v5/launches/{launch_id}'
 
     response = requests.get(url)
     response.raise_for_status()
@@ -12,9 +12,7 @@ def get_last_images(args):
     flickr_original_links = response.json()['links']['flickr']['original']
 
     for index, picture_url in enumerate(flickr_original_links, 1):
-        filename = 'spaceX_'
-        full_name = f"{filename}{index}.jpg"
-        folder = args.folder
+        full_name = f"spaceX_{index}.jpg"
 
         save_image(picture_url, folder, full_name)
 
@@ -33,7 +31,7 @@ def main():
 
     args = parser.parse_args()
 
-    get_last_images(args)
+    get_last_images(args.id, args.folder)
 
 
 if __name__ == '__main__':

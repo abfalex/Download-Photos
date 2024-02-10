@@ -5,24 +5,22 @@ from dotenv import load_dotenv
 from save_tools import extract_extension_from_link, save_image
 
 
-def get_apod_images(api_key, args):
-    parameters = {
-        'count': args.count,
+def get_apod_images(api_key, count, folder):
+    params = {
+        'count': count,
         'api_key': api_key
     }
 
-    response = requests.get('https://api.nasa.gov/planetary/apod', params=parameters)
+    response = requests.get('https://api.nasa.gov/planetary/apod', params=params)
     response.raise_for_status()
 
-    apod_data = response.json()
-
-    for index, picture_url in enumerate(apod_data, 1):
-        link_to_image = picture_url['url']
-        image_extension = extract_extension_from_link(link_to_image)[0]
-        folder_path = args.folder
+    apod_info_list = response.json()
+    for index, (picture_url) in enumerate(apod_info_list, 1):
+        link_to_image = picture_url.get('url')
+        image_extension, image_name = extract_extension_from_link(link_to_image)
         file_name = f"apod_{index}{image_extension}"
 
-        save_image(link_to_image, folder_path, file_name, api_key)
+        save_image(link_to_image, folder, file_name, api_key)
 
 
 def main():
@@ -46,7 +44,7 @@ def main():
 
     args = parser.parse_args()
 
-    get_apod_images(api_key, args)
+    get_apod_images(api_key, args.count, args.folder)
 
 
 if __name__ == '__main__':

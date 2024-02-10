@@ -2,16 +2,15 @@ import logging
 import os
 import random
 import asyncio
-
-import aiogram
-from aiogram.exceptions import TelegramAPIError
-from aiogram import Dispatcher, Bot, types
 import argparse
+
+from aiogram import Dispatcher, Bot, types
 from dotenv import load_dotenv
 
 
 async def main():
     load_dotenv()
+
     logging.basicConfig(level=logging.DEBUG, format="%(asctime)s %(levelname)s %(message)s")
 
     tg_bot_token = os.getenv('TG_BOT_TOKEN')
@@ -34,33 +33,25 @@ async def main():
     time = args.time
     photo_directory = args.folder
 
-    async def publish_photos():
-        while True:
-            photo_files = [os.path.join(name_file, file) for name_file, _, files in os.walk(photo_directory) for file in
-                           files]
+    while True:
+        photo_files = [os.path.join(name_file, file) for name_file, _, files in os.walk(photo_directory) for file in
+                       files]
 
-            if not photo_files:
-                logging.info(f'Папка {photo_directory} пуста.')
-                break
+        if not photo_files:
+            logging.info(f'Папка {photo_directory} пуста.')
+            break
 
-            random_photo = random.choice(photo_files)
+        random_photo = random.choice(photo_files)
 
-            try:
-                with open(random_photo, 'rb'):
-                    input_file = types.FSInputFile(random_photo)
-                    await bot.send_photo(chat_id=tg_chat_id, photo=input_file)
+        with open(random_photo, 'rb'):
+            input_file = types.FSInputFile(random_photo)
+            await bot.send_photo(chat_id=tg_chat_id, photo=input_file)
+            logging.info(f'Отправка фотографии: {random_photo}')
 
-                    logging.info(f'Отправка фотографии: {random_photo}')
-            except TelegramAPIError as e:
-                logging.error(f'Произошла ошибка при отправке {random_photo}: {e}')
+        await asyncio.sleep(time)
 
-            await asyncio.sleep(time)
-
-    await asyncio.gather(dp.start_polling(bot), publish_photos())
+    await asyncio.gather(dp.start_polling(bot), main())
 
 
 if __name__ == '__main__':
-    try:
-        asyncio.run(main())
-    except TelegramAPIError as e:
-        logging.error(f'Ошибка во время main(): {e}')
+    asyncio.run(main())

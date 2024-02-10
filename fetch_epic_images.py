@@ -7,26 +7,29 @@ from dotenv import load_dotenv
 import requests
 
 
-def download_epic_pictures(api_key, args):
-    params = {"count": args.count, "api_key": api_key}
+def download_epic_pictures(api_key, count, folder):
+    epic_params = {"count": count, "api_key": api_key}
+    epic_url = "https://api.nasa.gov/EPIC/api/natural/image"
 
-    url = "https://api.nasa.gov/EPIC/api/natural/image"
+    epic_response = requests.get(epic_url, params=epic_params)
+    epic_response.raise_for_status()
 
-    response = requests.get(url, params=params)
-    response.raise_for_status()
-
-    epic_images = response.json()
+    epic_images = epic_response.json()
 
     for epic_image in epic_images:
-        epic_image_date = epic_image["date"]
-        file_name = epic_image["image"]
+        epic_image_date = epic_image.get('date')
+        file_name = epic_image.get('image')
         full_name = f"{file_name}.png"
-        folder = args.folder
 
-        epic_image_date = datetime.fromisoformat(epic_image_date).strftime("%Y/%m/%d")
-        path_link = f"https://api.nasa.gov/EPIC/archive/natural/{epic_image_date}/png/{file_name}.png?api_key={api_key}"
+        image_date_formatted = datetime.fromisoformat(epic_image_date).strftime("%Y/%m/%d")
 
-        save_image(path_link, folder, full_name)
+        image_url = f"https://api.nasa.gov/EPIC/archive/natural/{image_date_formatted}/png/{file_name}.png"
+        image_params = {"api_key": api_key}
+
+        image_response = requests.get(image_url, params=image_params)
+        image_response.raise_for_status()
+
+        save_image(image_response.url, folder, full_name)
 
 
 def main():
@@ -49,7 +52,7 @@ def main():
 
     args = parser.parse_args()
 
-    download_epic_pictures(api_key, args)
+    download_epic_pictures(api_key, args.count, args.folder)
 
 
 if __name__ == "__main__":
