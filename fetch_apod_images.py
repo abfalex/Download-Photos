@@ -14,8 +14,8 @@ def get_apod_images(api_key, count, folder):
     response = requests.get('https://api.nasa.gov/planetary/apod', params=params)
     response.raise_for_status()
 
-    apod_info_list = response.json()
-    for index, (picture_url) in enumerate(apod_info_list, 1):
+    apod_entries = response.json()
+    for index, (picture_url) in enumerate(apod_entries, 1):
         link_to_image = picture_url.get('url')
         image_extension, image_name = extract_extension_from_link(link_to_image)
         file_name = f"apod_{index}{image_extension}"
